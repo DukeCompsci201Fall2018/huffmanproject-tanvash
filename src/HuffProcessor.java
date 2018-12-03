@@ -49,6 +49,29 @@ public class HuffProcessor {
 		}
 		out.close();
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * Decompresses a file. Output file must be identical bit-by-bit to the
 	 * original.
@@ -68,7 +91,7 @@ public class HuffProcessor {
 		out.close();
 	}*/
 	
-	public void decompress(BitInputStream in, BitOutputStream out) {
+	private void decompress(BitInputStream in, BitOutputStream out) {
 		int bits = in.readBits(BITS_PER_INT);
 		if (bits != HUFF_TREE) {
 			throw new HuffException("illegal header starts with " + bits);
@@ -99,7 +122,7 @@ public class HuffProcessor {
 		}
 	}
 	
-	public void readCompressedBits (HuffNode root, BitInputStream in, BitOutputStream out) {
+	private void readCompressedBits (HuffNode root, BitInputStream in, BitOutputStream out) {
 		
 		HuffNode current = root;
 		while (true) {
