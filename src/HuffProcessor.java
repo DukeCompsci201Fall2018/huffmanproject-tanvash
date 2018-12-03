@@ -144,7 +144,9 @@ public class HuffProcessor {
 	
 	private void writeCompressedBits(String [] codings, BitInputStream in, BitOutputStream out) {
 		
-		for (int k =0; k < codings.length-1; k++) {
+		in.reset();
+		
+		for (int k =0; k < codings.length; k++) {
 			String code = codings[k];
 			out.writeBits(code.length(), Integer.parseInt(code, 2));
 				
