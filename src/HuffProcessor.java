@@ -67,6 +67,12 @@ public class HuffProcessor {
 		
 	}
 	
+	
+	/**
+	 * Determines frequencies 
+	 * @param in 
+	 * @return int array of frequencies of 8-bit characters/chunks
+	 */
 	private int[] readforCounts(BitInputStream in) {
 		
 		int [] freqs = new int[ALPH_SIZE +1];
@@ -84,7 +90,11 @@ public class HuffProcessor {
 			
 	}
 	
-	
+	/**
+	 * PriorityQueue enables greedy algorithm
+	 * @param freqs
+	 * @return HuffMan Tree/Trie
+	 */
 	private HuffNode makeTreeFromCounts(int[] freqs) {
 		
 		PriorityQueue<HuffNode> pq = new PriorityQueue<>();
@@ -98,7 +108,7 @@ public class HuffProcessor {
 		while (pq.size() > 1) {
 			HuffNode left = pq.remove();
 			HuffNode right = pq.remove();
-			HuffNode t = new HuffNode(0, left.myWeight+right.myWeight, left, right); //can value be 0? value of parent node?
+			HuffNode t = new HuffNode(-1, left.myWeight+right.myWeight, left, right); 
 			pq.add(t);
 		}
 		
@@ -106,7 +116,11 @@ public class HuffProcessor {
 		return root;
 	}
 	
-	
+	/**
+	 * Uses helper method to return String array of bit-stream encodings for characters
+	 * @param root
+	 * @return
+	 */
 	private String [] makeCodingsFromTree(HuffNode root) {
 		
 		String[] encodings = new String[ALPH_SIZE +1];
@@ -115,6 +129,12 @@ public class HuffProcessor {
         return encodings;
 	}
 	
+	/**
+	 * Reads tree, creates encoding pathway determined by 0s (left) and 1s (right)
+	 * @param root
+	 * @param path
+	 * @param encodings
+	 */
 	private void codingHelper(HuffNode root, String path, String[] encodings) { //populates String array encoding
 
 		if(root.myLeft == null && root.myRight == null) {
@@ -122,12 +142,17 @@ public class HuffProcessor {
 			return;
 		}
 		
-        codingHelper(root.myLeft, path + "0", encodings);
-    	    codingHelper(root.myRight, path + "1", encodings);
+        codingHelper(root.myLeft, path + "0", encodings); // "0" is added to path when recursive call made on left subtree
+    	    codingHelper(root.myRight, path + "1", encodings); // "1" is added to path when recursive call made on right subtree
 		
 	}
 	
-
+    /**
+     * If node is internal node, writes single bit of zero
+     * If node is leaf, writes a single bit of 1 followed by 9 bits of value stored in the leaf
+     * @param root
+     * @param out
+     */
 	private void writeHeader(HuffNode root, BitOutputStream out) {
 		
 		if(root.myLeft == null && root.myRight == null) {
@@ -141,7 +166,12 @@ public class HuffProcessor {
 		}
 	}
 	
-	
+	/**
+	 * Reads input and uses codings to encode bit-sequence for characters in input
+	 * @param codings, String array containing encodings for each character
+	 * @param in
+	 * @param out
+	 */
 	private void writeCompressedBits(String [] codings, BitInputStream in, BitOutputStream out) {
 		
 		in.reset();
@@ -158,42 +188,6 @@ public class HuffProcessor {
 	}
 		
 		
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	/**
 	 * Decompresses a file. Output file must be identical bit-by-bit to the
@@ -227,13 +221,21 @@ public class HuffProcessor {
 		
 	}
 	
+	
+	/**
+	 * Reads tree, which was stored using recursion
+	 * If bit is 0, internal node. Recurses to subtrees.
+	 * If bit is 1, leaf. No recursion.
+	 * @param in
+	 * @return tree
+	 */
 	private HuffNode readTreeHeader(BitInputStream in) {
 		int bit = in.readBits(1);
 		if (bit == -1) {
 			throw new HuffException("reading bits failed");
 		}
 		
-		if (bit == 0) {
+		if (bit == 0) { //internal node, recursion required
 			HuffNode left = readTreeHeader(in);
 			HuffNode right = readTreeHeader (in);
 			return new HuffNode(0, 0, left, right);
@@ -245,6 +247,12 @@ public class HuffProcessor {
 		}
 	}
 	
+	/**
+	 * Read bits from BitInputStream. Traverses tree from root, going left or right depending on whether a 0 or 1 is read.
+	 * @param root
+	 * @param in
+	 * @param out
+	 */
 	private void readCompressedBits (HuffNode root, BitInputStream in, BitOutputStream out) {
 		
 		HuffNode current = root;
@@ -259,11 +267,11 @@ public class HuffProcessor {
 				
 				if(current.myLeft == null && current.myRight == null) {
 					if(current.myValue == PSEUDO_EOF) {
-						break;
+						break;  //break out of loop
 					}
 					else {
 						out.writeBits(BITS_PER_WORD, current.myValue);
-						current = root;
+						current = root; //starts back at root
 					}
 				}
 				
