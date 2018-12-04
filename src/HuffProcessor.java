@@ -100,7 +100,7 @@ public class HuffProcessor {
 		PriorityQueue<HuffNode> pq = new PriorityQueue<>();
 		
 		for(int k = 0; k < freqs.length; k++) {
-			if (freqs[k] > 0) {
+			if (freqs[k] > 0) { //only add nodes with non-zero weights to pq
 				pq.add(new HuffNode(k, freqs[k], null, null));
 			}	
 		}
