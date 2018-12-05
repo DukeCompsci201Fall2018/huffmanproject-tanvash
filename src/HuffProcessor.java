@@ -58,8 +58,8 @@ public class HuffProcessor {
 		HuffNode root = makeTreeFromCounts(counts);
 		String[] codings = makeCodingsFromTree(root);
 		
-		writeHeader(root, out);
 		out.writeBits(BITS_PER_INT, HUFF_TREE);
+		writeHeader(root, out);
 		
 		in.reset();
 		writeCompressedBits(codings, in, out);
